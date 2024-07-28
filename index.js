@@ -21,6 +21,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Define routes()
+const UserRoutes = require('./routes/user');
+const PublicationRoutes = require('./routes/publication');
+const FollowRoutes = require('./routes/follow');
+
+// Use routes
+
+app.use('/api', UserRoutes);
+app.use('/api', PublicationRoutes);
+app.use('/api', FollowRoutes);
+
+ // Test route
 // Test route
 app.get('/test-route', (req, res) => {
     return res.status(200).json({
