@@ -8,5 +8,8 @@ router.get("/user-test", UserController.userTest);
 // Define user register route
 router.post("/register", UserController.register);
 
+// Define user login route
+router.post("/login", UserController.login);
+
 // Export routes
 module.exports = router;

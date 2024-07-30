@@ -1,6 +1,6 @@
 // Import models and dependencies
 const user = require("../models/user");
-const models = require("../models/user");
+const bcrypt = require("bcrypt");
 
 // Test actions
 const userTest = (req, res) => {
@@ -40,6 +40,9 @@ const register = async (req, res) => {
       });
     }
 
+    // Hash the password
+    user_to_save.password = await bcrypt.hash(user_to_save.password, 10);
+
     // Save the new user to the database
     const savedUser = await user_to_save.save();
 
@@ -56,8 +59,46 @@ const register = async (req, res) => {
   }
 };
 
+// User login
+
+const login = async (req, res) => {
+  // Get data from server
+  let params = req.body;
+
+  if (!params.email || !params.password) {
+    return res.status(400).send({
+      error: "Invalid",
+      message: "Incomplete data",
+    });
+  }
+
+  // Find user by email
+  user.findOne({ email: params.email }).select({"password": 0}).exec().then((user) => {
+    if (!user) {
+      return res.status(404).send({
+        status: "Error",
+        message: "The user doesn't exist",
+      });
+    }
+
+    // Check if the password is correct
+
+    // Generate token
+
+    // Return data
+
+    return res.status(200).json({
+      status: "success",
+      message: "Logged in successfully",
+      user: user,
+      token: "your_token_here",
+    });
+  });
+};
+
 // Export actions
 module.exports = {
   userTest,
   register,
+  login,
 };
