@@ -73,27 +73,31 @@ const login = async (req, res) => {
   }
 
   // Find user by email
-  user.findOne({ email: params.email }).select({"password": 0}).exec().then((user) => {
-    if (!user) {
-      return res.status(404).send({
-        status: "Error",
-        message: "The user doesn't exist",
+  user
+    .findOne({ email: params.email })
+    .select({ password: 0 })
+    .exec()
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({
+          status: "Error",
+          message: "The user doesn't exist",
+        });
+      }
+
+      // Check if the password is correct
+
+      // Generate token
+
+      // Return data
+
+      return res.status(200).json({
+        status: "success",
+        message: "Logged in successfully",
+        user: user,
+        token: "your_token_here",
       });
-    }
-
-    // Check if the password is correct
-
-    // Generate token
-
-    // Return data
-
-    return res.status(200).json({
-      status: "success",
-      message: "Logged in successfully",
-      user: user,
-      token: "your_token_here",
     });
-  });
 };
 
 // Export actions
