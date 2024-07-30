@@ -6,7 +6,7 @@ const moment = require('moment');
 const secretKey = 'your_secret_key_SOCIAL_NETWORK_1973';
 
 // Create JWT token
-exports.createToken = (user) => {
+const createToken = (user) => {
     const payload = {
         id: user.id,
         name: user.name,
@@ -22,3 +22,7 @@ exports.createToken = (user) => {
     return jwt.encode(payload, secretKey);
 }
 
+module.exports = {
+    secretKey,
+    createToken
+}
