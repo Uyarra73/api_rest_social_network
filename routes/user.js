@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/user');
-const auth = require('../middlewares/auth');
+const check = require('../middlewares/auth');
 
 // Define routes
-router.get("/user-test",auth.auth, UserController.userTest);
+router.get("/user-test",check.auth, UserController.userTest);
 
 // Define user register route
 router.post("/register", UserController.register);

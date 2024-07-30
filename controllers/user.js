@@ -9,6 +9,7 @@ const jwt = require("../services/jwt");
 const userTest = (req, res) => {
   return res.status(200).send({
     message: "Message sent from: controllers/user.js",
+    user: req.user
   });
 };
 

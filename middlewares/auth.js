@@ -32,7 +32,7 @@ exports.auth = (req, res, next) => {
       }
   
       // Attach user data to the request object
-      req.user = payload.sub;
+      req.user = payload;
   
       next();
     } catch (error) {
