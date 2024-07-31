@@ -1,6 +1,7 @@
 // Import models and dependencies
 const user = require("../models/user");
 const bcrypt = require("bcrypt");
+const mongoosePagination = require("mongoose-pagination");
 
 // Import services
 const jwt = require("../services/jwt");
@@ -9,7 +10,7 @@ const jwt = require("../services/jwt");
 const userTest = (req, res) => {
   return res.status(200).send({
     message: "Message sent from: controllers/user.js",
-    user: req.user
+    user: req.user,
   });
 };
 
@@ -100,11 +101,11 @@ const login = async (req, res) => {
         status: "success",
         message: "Logged in successfully",
         user: {
-            _id: user._id,
-            name: user.name,
-            nick: user.nick         
+          _id: user._id,
+          name: user.name,
+          nick: user.nick,
         },
-        token: token
+        token: token,
       });
     });
 };
@@ -112,27 +113,62 @@ const login = async (req, res) => {
 // User profile
 
 const profile = async (req, res) => {
-  
-    // Get user from request
-    let id = req.params.id;
+  // Get user from request
+  let id = req.params.id;
 
-    // Check user params
-    user.findById(id).select({password: 0, role: 0}).exec().then((userProfile) => {
+  // Check user params
+  user
+    .findById(id)
+    .select({ password: 0, role: 0 })
+    .exec()
+    .then((userProfile) => {
       if (!userProfile) {
         return res.status(404).send({
           status: "Error",
           message: "User not found",
         });
       }
-      
+
       // Return user data
       // Show follows information
       return res.status(200).json({
         status: "success",
         message: "User profile",
-        user: userProfile
+        user: userProfile,
       });
-    })
+    });
+};
+
+// List method
+const list = (req, res) => {
+  // Check the page
+  let page = 1;
+  if (req.params.page) {
+    page = parseInt(req.params.page);
+  }
+
+  // Query with mongoose paginate
+  let itemsPerPage = 1;
+  user.find().sort('_id').paginate(page, itemsPerPage).then((users, total)=> {
+    if(!users){
+      return res.status(404).send({
+        status: "error",
+        message: "Users not found",
+      });
+    }
+
+
+      // Return the list of users with pagination
+    return res.status(200).json({
+      status: "success",
+      current_page: page,
+      users,
+      itemsPerPage,
+      total_items: total,
+      total_pages: Math.ceil(total / itemsPerPage),
+    });
+  })
+
   
 };
 
@@ -141,5 +177,6 @@ module.exports = {
   userTest,
   register,
   login,
-  profile
+  profile,
+  list,
 };

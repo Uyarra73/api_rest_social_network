@@ -15,5 +15,8 @@ router.post("/login", UserController.login);
 // User profile route
 router.get("/profile/:id", check.auth, UserController.profile);
 
+// List route
+router.get("/list/:page?", check.auth, UserController.list);
+
 // Export routes
 module.exports = router;
