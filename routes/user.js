@@ -12,5 +12,8 @@ router.post("/register", UserController.register);
 // Define user login route
 router.post("/login", UserController.login);
 
+// User profile route
+router.get("/profile/:id", check.auth, UserController.profile);
+
 // Export routes
 module.exports = router;

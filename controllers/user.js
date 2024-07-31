@@ -109,9 +109,37 @@ const login = async (req, res) => {
     });
 };
 
+// User profile
+
+const profile = async (req, res) => {
+  
+    // Get user from request
+    let id = req.params.id;
+
+    // Check user params
+    user.findById(id).select({password: 0, role: 0}).exec().then((userProfile) => {
+      if (!userProfile) {
+        return res.status(404).send({
+          status: "Error",
+          message: "User not found",
+        });
+      }
+      
+      // Return user data
+      // Show follows information
+      return res.status(200).json({
+        status: "success",
+        message: "User profile",
+        user: userProfile
+      });
+    })
+  
+};
+
 // Export actions
 module.exports = {
   userTest,
   register,
   login,
+  profile
 };
