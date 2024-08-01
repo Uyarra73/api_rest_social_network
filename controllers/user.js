@@ -140,37 +140,81 @@ const profile = async (req, res) => {
 };
 
 // List method
-const list = (req, res) => {
-  // Check the page
+// const list = async (req, res) => {
+//   let page = 1;
+
+//   if (req.query.page) {
+//     page = req.query.page;
+//   }
+//   page = parseInt(page, 10);
+
+//   let itemsPerPage = 5;
+//   const totalItems = await user.countDocuments();
+
+//   // Search query
+//   user
+//     .find()
+//     .sort("_id")
+//     .paginate(page, itemsPerPage)
+//     .then((users) => {
+//       if (!users) {
+//         return res.status(404).send({
+//           status: "error",
+//           message: "Error in the server",
+//         });
+//       }
+
+//       return res.status(200).json({
+//         status: "success",
+//         message: "Users list",
+//         users,
+//         page,
+//         itemsPerPage,
+//         totalItems,
+//         totalPages: Math.ceil(totalItems / itemsPerPage),
+//       });
+//     });
+// };
+
+const list = async (req, res) => {
   let page = 1;
   if (req.params.page) {
     page = parseInt(req.params.page);
   }
 
-  // Query with mongoose paginate
-  let itemsPerPage = 1;
-  user.find().sort('_id').paginate(page, itemsPerPage).then((users, total)=> {
-    if(!users){
+  let itemsPerPage = 5;
+
+  try {
+    // Usar paginate para obtener usuarios y total de elementos
+    const result = await user.paginate({}, { page, limit: itemsPerPage, sort: { _id: 1 } });
+    const { docs: users, totalDocs: totalItems } = result;
+
+    if (!users || users.length === 0) {
       return res.status(404).send({
         status: "error",
-        message: "Users not found",
+        message: "No users found",
       });
     }
 
-
-      // Return the list of users with pagination
+    // Enviar respuesta con los datos de usuarios y paginación
     return res.status(200).json({
       status: "success",
-      current_page: page,
+      message: "Users list",
       users,
+      totalItems,
+      currentPage: page,
       itemsPerPage,
-      total_items: total,
-      total_pages: Math.ceil(total / itemsPerPage),
+      totalPages: result.totalPages
     });
-  })
-
-  
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error in the server",
+      error: error.message
+    });
+  }
 };
+
 
 // Export actions
 module.exports = {
