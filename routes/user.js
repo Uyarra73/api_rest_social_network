@@ -18,5 +18,8 @@ router.get("/profile/:id", check.auth, UserController.profile);
 // List route
 router.get("/list/:page?", check.auth, UserController.list);
 
+// Update route
+router.put("/update", check.auth, UserController.update);
+
 // Export routes
 module.exports = router;

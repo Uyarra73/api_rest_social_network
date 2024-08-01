@@ -1,7 +1,7 @@
 // Import models and dependencies
 const user = require("../models/user");
 const bcrypt = require("bcrypt");
-const mongoosePagination = require("mongoose-pagination");
+//const mongoosePagination = require("mongoose-pagination");
 
 // Import services
 const jwt = require("../services/jwt");
@@ -140,42 +140,6 @@ const profile = async (req, res) => {
 };
 
 // List method
-// const list = async (req, res) => {
-//   let page = 1;
-
-//   if (req.query.page) {
-//     page = req.query.page;
-//   }
-//   page = parseInt(page, 10);
-
-//   let itemsPerPage = 5;
-//   const totalItems = await user.countDocuments();
-
-//   // Search query
-//   user
-//     .find()
-//     .sort("_id")
-//     .paginate(page, itemsPerPage)
-//     .then((users) => {
-//       if (!users) {
-//         return res.status(404).send({
-//           status: "error",
-//           message: "Error in the server",
-//         });
-//       }
-
-//       return res.status(200).json({
-//         status: "success",
-//         message: "Users list",
-//         users,
-//         page,
-//         itemsPerPage,
-//         totalItems,
-//         totalPages: Math.ceil(totalItems / itemsPerPage),
-//       });
-//     });
-// };
-
 const list = async (req, res) => {
   let page = 1;
   if (req.params.page) {
@@ -215,6 +179,67 @@ const list = async (req, res) => {
   }
 };
 
+// User data update
+const update = (req, res) => {
+  // Get user from request
+  let userIdentity = req.user;
+
+  // Delete data we don't need  
+  delete userIdentity.iat;
+  delete userIdentity.exp;
+  delete userIdentity.role;
+  delete userIdentity.image;
+
+  // Check if the user already exists
+  let userToUpdate = req.body;
+
+  // User duplicated check
+  user.find({
+    $or: [
+      { email: userToUpdate.email.toLowerCase() },
+      { nick: userToUpdate.nick.toLowerCase() },
+    ],
+  }).exec().then(users => {
+    if (!user) {
+      return res.status(404).send({
+        status: "Error",
+        message: "The user doesn't exist",
+      });
+    }
+
+    let userIsset = false;
+    users.forEach(user => {
+      if (user && user._id != userIdentity.id) {
+        userIsset = true;
+      }
+    });
+
+    if(userIsset){
+      return res.status(200).send({
+        status: "success",
+        message: "User already exists",
+      });
+    }
+  });
+
+
+
+  // Hash the password
+  if(userToUpdate.password){
+    userToUpdate.password = bcrypt.hash(userToUpdate.password, 10);
+  }
+  
+
+  // Save the new user to the database
+  const updatedUser = userToUpdate.save(); 
+
+  return res.status(200).json({
+    status: "success",
+    message: "User updated successfully",
+    user: userIdentity,
+  });
+}
+
 
 // Export actions
 module.exports = {
@@ -223,4 +248,5 @@ module.exports = {
   login,
   profile,
   list,
+  update,
 };
